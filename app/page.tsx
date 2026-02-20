@@ -61,6 +61,7 @@ export default function Home () {
         <div className='absolute inset-0 z-10 flex flex-col items-center justify-center bg-stone-50/50 text-amber-400'>
           <Loader size={64} className='animate-spin slow-animation' />
           <span className='font-black text-2xl mt-3'>Loading ...</span>
+          <span className='font-black mt-2'>Please be patient. It may take a while.</span>
         </div>
       )}
 
@@ -121,7 +122,7 @@ export default function Home () {
               value={text}
               onChange={e => setText(e.target.value)}
               placeholder='Start typing...'
-              className={`h-full resize-none bg-transparent text-base leading-relaxed
+              className={`w-full h-full resize-none bg-transparent text-base leading-relaxed
               focus:outline-none placeholder:text-zinc-500 transition-colors duration-300
               ${theme === 'dark' ? 'text-zinc-100' : 'text-zinc-950'}`}
             />
