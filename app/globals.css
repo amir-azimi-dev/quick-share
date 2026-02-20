@@ -7,3 +7,7 @@
 html.dark {
   color-scheme: dark;
 }
+
+.slow-animation {
+  animation-duration: 10s;
+}

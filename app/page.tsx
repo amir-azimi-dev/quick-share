@@ -58,8 +58,9 @@ export default function Home () {
   return (
     <main className='relative min-h-screen'>
       {isLoading && (
-        <div className='absolute inset-0 z-10 flex items-center justify-center bg-gray-500/90 text-black'>
-          <Loader size={64} />
+        <div className='absolute inset-0 z-10 flex flex-col items-center justify-center bg-stone-50/50 text-amber-400'>
+          <Loader size={64} className='animate-spin slow-animation' />
+          <span className='font-black text-2xl mt-3'>Loading ...</span>
         </div>
       )}
 
