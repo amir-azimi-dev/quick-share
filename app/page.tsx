@@ -1,13 +1,15 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { Sun, Moon, CheckCircle2, Loader } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
+import { Sun, Moon, CheckCircle2, Loader, RefreshCcw } from 'lucide-react'
 
 export default function Home () {
   const [text, setText] = useState('')
   const [theme, setTheme] = useState<'dark' | 'light'>('dark')
   const [isLoading, setIsLoading] = useState(true)
   const [saved, setSaved] = useState(true)
+
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
     const storedTheme = localStorage.getItem('theme') as 'dark' | 'light' | null
@@ -20,28 +22,36 @@ export default function Home () {
       document.documentElement.classList.remove('dark')
     }
 
-    const timeout = setTimeout(() => {
-      fetch('/api/content')
-        .then(res => res.json())
-        .then(data => setText(data.content))
-        .finally(() => setIsLoading(false))
-    }, 10000)
-
-    setSaved(false)
-    return () => clearTimeout(timeout)
+    updateData()
   }, [])
 
+  const updateData = async () => {
+    setSaved(false)
+    const res = await fetch('/api/content')
+    const data = await res.json()
+    setText(data.content)
+    setIsLoading(false)
+    setSaved(true)
+  }
+
   useEffect(() => {
-    const timeout = setTimeout(() => {
-      fetch('/api/content', {
+    if (isLoading) return
+
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current)
+    }
+
+    setSaved(false)
+
+    timeoutRef.current = setTimeout(async () => {
+      await fetch('/api/content', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content: text })
-      }).then(() => setSaved(true))
-    }, 700)
+      })
 
-    setSaved(false)
-    return () => clearTimeout(timeout)
+      setSaved(true)
+    }, 1000)
   }, [text])
 
   const toggleTheme = () => {
@@ -61,7 +71,9 @@ export default function Home () {
         <div className='absolute inset-0 z-10 flex flex-col items-center justify-center bg-stone-50/50 text-amber-400'>
           <Loader size={64} className='animate-spin slow-animation' />
           <span className='font-black text-2xl mt-3'>Loading ...</span>
-          <span className='font-black mt-2'>Please be patient. It may take a while.</span>
+          <span className='font-black mt-2'>
+            Please be patient. It may take a while.
+          </span>
         </div>
       )}
 
@@ -84,6 +96,18 @@ export default function Home () {
           <h1 className='text-xl font-semibold tracking-tight'>Quick Share</h1>
 
           <div className='flex items-center gap-4'>
+            <button
+              onClick={updateData}
+              className={`p-2 rounded-xl transition-colors duration-300 cursor-pointer
+              ${
+                theme === 'dark'
+                  ? 'bg-zinc-800 hover:bg-zinc-700'
+                  : 'bg-zinc-200 hover:bg-zinc-300'
+              }`}
+            >
+              <RefreshCcw size={16} />
+            </button>
+
             {saved ? (
               <span className='flex items-center gap-1 text-green-500 text-sm'>
                 <CheckCircle2 size={16} /> Saved
